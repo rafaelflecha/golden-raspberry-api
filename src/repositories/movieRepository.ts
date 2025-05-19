@@ -17,7 +17,7 @@ export class MovieRepository {
             ORDER BY year ASC
             `).all();
 
-        console.log(winners);
+        // console.log(winners);
         const producerWins = new Map<string, number[]>();
         
         (winners as Movie[]).forEach((movie: Movie) => {
@@ -39,7 +39,7 @@ export class MovieRepository {
         });
 
         const mappedWinners = new Map([...producerWins.entries()].filter(([years]) => years.length >= 2));
-        console.log(mappedWinners);
+        // console.log(mappedWinners);
         return mappedWinners;
     }
 }

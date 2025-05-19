@@ -8,37 +8,50 @@ export class ProducerService {
         this.movieRepository = new MovieRepository();
     }
 
-    getProducerAwardIntervals(): AwardsIntervals { 
+    getProducerAwardIntervals(): AwardsIntervals {
         const producerWins = this.movieRepository.getWinnersByProducer();
         const intervals: ProducerAward[] = [];
 
         producerWins.forEach((years, producer) => {
 
-            for (let i = 0; i < years.length - 1; i++) {
-                intervals.push({
-                    producer,
-                    interval: years[i + 1] - years[i],
-                    previousWin: years[i],
-                    followingWin: years[i + 1]
-                });
+            years.sort((a, b) => a - b);
+            const uniqueYears = [...new Set(years)];
+
+            if (uniqueYears.length < 2) {
+                return;
+            }
+
+            for (let i = 0; i < uniqueYears.length - 1; i++) {
+                const interval = uniqueYears[i + 1] - uniqueYears[i];
+
+                if (interval > 0) {
+                    intervals.push({
+                        producer,
+                        interval: interval,
+                        previousWin: uniqueYears[i],
+                        followingWin: uniqueYears[i + 1]
+                    });
+                }
             }
         });
-        
-        console.log(intervals);
+
+        if (intervals.length === 0) {
+            return { min: [], max: [] };
+        }
 
         let minInterval = Number.MAX_SAFE_INTEGER;
         let maxInterval = 0;
 
-        intervals.forEach(interval => {
-            minInterval = Math.min(minInterval, interval.interval);
-            maxInterval = Math.max(maxInterval, interval.interval);
+        intervals.forEach(item => {
+            minInterval = Math.min(minInterval, item.interval);
+            maxInterval = Math.max(maxInterval, item.interval);
         });
 
-        const minIntervals = intervals.filter(interval => interval.interval === minInterval);
-        const maxIntervals = intervals.filter(interval => interval.interval === maxInterval);
+        const minIntervals = intervals.filter(item => item.interval === minInterval);
+        const maxIntervals = intervals.filter(item => item.interval === maxInterval);
 
         return {
-            min: minIntervals, 
+            min: minIntervals,
             max: maxIntervals
         };
     }
